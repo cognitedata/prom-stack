@@ -1,13 +1,19 @@
 version: "3"
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+
 services:
 
   pushgateway:
-    image: prom/pushgateway:v0.4.0
+    image: prom/pushgateway:v1.0.0
+    restart: unless-stopped
     ports:
       - 9091:9091
 
   prometheus:
-    image: prom/prometheus:v2.0.0
+    image: prom/prometheus:v2.13.1
     command: --config.file=/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
@@ -16,14 +22,23 @@ services:
       - ./prometheus/alerts/:/etc/prometheus/rules.d/
 
   grafana:
-    image: grafana/grafana:4.6.2
+    image: grafana/grafana:6.4.3
     ports:
       - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/datasources:/etc/grafana/datasources
+      - ./grafana/dashboards:/etc/grafana/dashboards
+      - ./grafana/setup.sh:/setup.sh
+    # entrypoint: /setup.sh
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=password
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-password}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
 
   alertmanager:
-    image: prom/alertmanager:v0.11.0
+    image: prom/alertmanager:v0.19.0
     command: --config.file=/etc/alertmanager/alertmanager.yml
     ports:
       - 9093:9093
