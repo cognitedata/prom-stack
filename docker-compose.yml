@@ -20,6 +20,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./prometheus/alerts/:/etc/prometheus/rules.d/
+      - ./prometheus/storage/:/prometheus/
 
   grafana:
     image: grafana/grafana:6.4.3
