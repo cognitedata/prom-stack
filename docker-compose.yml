@@ -7,13 +7,14 @@ volumes:
 services:
 
   pushgateway:
-    image: prom/pushgateway:v1.0.0
+    image: prom/pushgateway:v1.2.0
     restart: unless-stopped
     ports:
       - 9091:9091
 
   prometheus:
-    image: prom/prometheus:v2.13.1
+    image: prom/prometheus:v2.18.1
+    restart: unless-stopped
     command: --config.file=/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
@@ -23,7 +24,8 @@ services:
       - ./prometheus/storage/:/prometheus/
 
   grafana:
-    image: grafana/grafana:6.4.3
+    image: grafana/grafana:7.1.0
+    restart: unless-stopped
     ports:
       - 3000:3000
     volumes:
@@ -36,10 +38,10 @@ services:
       - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-password}
       - GF_USERS_ALLOW_SIGN_UP=false
-    restart: unless-stopped
 
   alertmanager:
-    image: prom/alertmanager:v0.19.0
+    image: prom/alertmanager:v0.20.0
+    restart: unless-stopped
     command: --config.file=/etc/alertmanager/alertmanager.yml
     ports:
       - 9093:9093
